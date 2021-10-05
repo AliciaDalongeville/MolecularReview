@@ -19,7 +19,6 @@ datasets <- list_datasets(terrestrial = F, marine = T)
 
 # List the  layers 
 layers <- list_layers(datasets)
-layersTerr <- list_layers("WorldClim")
 
 # print the Bio-ORACLE citation
 print(dataset_citations("Bio-ORACLE"))
@@ -32,114 +31,107 @@ print(layer_citations("WC_bio1_cclgm"))
 ######################## DOWNLOAD #############################
 ######## CONTEMPORARY
 
-# download SST mean & range
-# Precipitations mean (bio12), wettest month (bio13) and driest month (bio14)
+# download SST mean & range, SSS mean & range
 load_layers( layercodes = c("BO2_tempmean_ss", "BO2_temprange_ss",
-                            "WC_bio12", "WC_bio13", "WC_bio14") , 
+                            "BO2_salinitymean_ss", "BO2_salinityrange_ss") , 
              equalarea=FALSE, rasterstack=TRUE,
              datadir="Env_Layers_contemporary")
 
 
 
 ######## HISTORICAL
-# List of paleoterrestrial recors
-paleo.ter<-list_layers_paleo(datasets = c("WorldClim"), epoch = "Last Glacial Maximum")
-#can choose cc or mr models
-load_layers( layercodes = c("WC_bio14_cclgm", "WC_bio12_cclgm", "WC_bio13_cclgm") ,
-             equalarea=FALSE, rasterstack=TRUE,
-             datadir="Env_Layers_historical")
-
 ## list the available paleo marine recors
-paleo.mar<-list_layers_paleo(datasets = c("MARSPEC"), epoch = "Last Glacial Maximum")
+paleo.mar<-list_layers_paleo(datasets = c("MARSPEC"), epoch = "mid-Holocene")
 load_layers( layercodes = c( "MS_biogeo13_sst_mean_21kya_noCCSM",
-                             "MS_biogeo16_sst_range_21kya_noCCSM") , 
+                             "MS_biogeo16_sst_range_21kya_noCCSM",
+                             "MS_biogeo08_sss_mean_21kya_noCCSM",
+                             "MS_biogeo11_sss_range_21kya_noCCSM",
+                             "MS_biogeo13_sst_mean_6kya",
+                             "MS_biogeo16_sst_range_6kya",
+                             "MS_biogeo08_sss_mean_6kya",
+                             "MS_biogeo11_sss_range_6kya" ) , 
              equalarea=FALSE, rasterstack=TRUE,
              datadir="Env_Layers_historical")
 
 
 ######################## WORK WITH LAYERS #############################
 # Load marine contemporary rasters from the directory
-contemp.mar<- load_layers( layercodes = c("BO2_tempmean_ss", "BO2_temprange_ss") , 
+contemp.mar<- load_layers( layercodes = c("BO2_tempmean_ss", "BO2_temprange_ss",
+                                          "BO2_salinitymean_ss", "BO2_salinityrange_ss") , 
                            equalarea=FALSE, rasterstack=TRUE,
                            datadir="Env_Layers_contemporary")
 
 
 # Crop raster to fit South Africa 
 sa.ext <- extent(14, 35, -37, 21) 
-contemp.mar.crop <- crop(contemp.mar, sa.ext) 
+paleo.LGM.crop <- crop(paleo.LGM, sa.ext) 
 
 # Generate a nice color ramp and plot the map 
 my.colors = colorRampPalette(c("#5E85B8","#EDF0C0","#C13127")) 
-plot(contemp.mar.crop[[1]],col=my.colors(1000),axes=FALSE, box=FALSE) 
-title(cex.sub = 1.25, sub = "Mean SST (ºC)") 
+plot(paleo.LGM.crop[[1]],col=my.colors(1000),axes=FALSE, box=FALSE) 
+title(cex.sub = 1.25, sub = "Mean SST LGM (ºC)") 
 
 ############################# EXTRACT DATA FOR SITES ######################################
 # Load the data
-contemp.mar<- load_layers( layercodes = c("BO2_tempmean_ss", "BO2_temprange_ss") , 
+all_layers <- load_layers( layercodes = c("BO2_tempmean_ss", "BO2_temprange_ss",
+                                          "BO2_salinitymean_ss", "BO2_salinityrange_ss",
+                                          "MS_biogeo13_sst_mean_21kya_noCCSM",
+                                          "MS_biogeo16_sst_range_21kya_noCCSM",
+                                          "MS_biogeo08_sss_mean_21kya_noCCSM",
+                                          "MS_biogeo11_sss_range_21kya_noCCSM",
+                                          "MS_biogeo13_sst_mean_6kya",
+                                          "MS_biogeo16_sst_range_6kya",
+                                          "MS_biogeo08_sss_mean_6kya",
+                                          "MS_biogeo11_sss_range_6kya") , 
                            equalarea=FALSE, rasterstack=TRUE,
                            datadir="Env_Layers_contemporary")
 
-contemp.terr <- load_layers( layercodes = c("WC_bio12","WC_bio13", "WC_bio14") , 
-                             equalarea=FALSE, rasterstack=TRUE,
-                             datadir="Env_Layers_contemporary")
-
-paleo.terr <-load_layers( layercodes = c("WC_bio12_cclgm", 
-                                         "WC_bio13_cclgm",
-                                         "WC_bio14_cclgm"),
+# LGM layers
+paleo.LGM <- load_layers( layercodes = c( "MS_biogeo13_sst_mean_21kya_noCCSM",
+                                          "MS_biogeo16_sst_range_21kya_noCCSM",
+                                          "MS_biogeo08_sss_mean_21kya_noCCSM",
+                                          "MS_biogeo11_sss_range_21kya_noCCSM")  , 
                           equalarea=FALSE, rasterstack=TRUE,
-                          datadir="Env_Layers_historical")
+                          datadir="Env_Layers_historical/LGM")
 
-paleo.mar <- load_layers( layercodes = c( "MS_biogeo13_sst_mean_21kya_noCCSM",
-                                          "MS_biogeo16_sst_range_21kya_noCCSM")  , 
+# mid-Holocene layers
+paleo.MH <- load_layers( layercodes = c( "MS_biogeo13_sst_mean_6kya",
+                                         "MS_biogeo16_sst_range_6kya",
+                                         "MS_biogeo08_sss_mean_6kya",
+                                         "MS_biogeo11_sss_range_6kya")  , 
                           equalarea=FALSE, rasterstack=TRUE,
-                          datadir="Env_Layers_historical")
+                          datadir="Env_Layers_historical/MH")
 
 # load population coordinates
-h_df <- read.csv("Genetic_data/hap.div.filtered.csv",  header = T)
-n_df <- read.csv("Genetic_data/nuc.div.filtered.csv", header = T)
+h_df <- read.csv("Genetic_data/hap.div.filteredNEW.csv",  header = T)
+n_df <- read.csv("Genetic_data/nuc.div.filteredNEW.csv", header = T)
 
 
 # Build result matrices (1 per dataset)
-env1<-env3<- matrix(NA,nrow(n_df), 2)
-env2<-env4<- matrix(NA,nrow(n_df), 3)
+env1<-env2<-env3 <- matrix(NA,nrow(h_df), 4)
 
 # extract values of the sampling sites for each raster
-for (i in 1:2) {
-  env1[,i] <- extract(contemp.mar[[i]], n_df[,c("Long", "Lat")], 
+for (i in 1:4) {
+  env1[,i] <- raster::extract(contemp.mar[[i]], h_df[,c("Long", "Lat")], 
+                      method='bilinear', df=T)[,2]
+  env2[,i] <- raster::extract(paleo.LGM[[i]], h_df[,c("Long", "Lat")], 
+                      method='bilinear', df=T)[,2]
+  env3[,i] <- raster::extract(paleo.MH[[i]], h_df[,c("Long", "Lat")], 
                       method='bilinear', df=T)[,2]
 }
 
-for (i in 1:3) {
-  env2[,i] <- extract(contemp.terr[[i]], n_df[,c("Long", "Lat")], 
-                      method='bilinear', df=T)[,2]
-}
-
-for (i in 1:2) {
-  env3[,i] <- extract(paleo.mar[[i]], n_df[,c("Long", "Lat")], 
-                      buffer=100000, fun=mean,df=T)[,2]
-}
-
-for (i in 1:3) {
-  env4[,i] <- extract(paleo.terr[[i]], n_df[,c("Long", "Lat")], 
-                      method='bilinear', df=T)[,2]
-}
-
-## Create the precipitation range by making the difference between min and max
-env2 <- as.data.frame(env2) %>%
-  mutate(PrecRange = V2 - V3)
-
-env4 <- as.data.frame(env4) %>%
-  mutate(PrecRange = V2 - V3)
 
 ## Combine the data in one dataframe
-my.sites.environment <- cbind.data.frame(Name=n_df[, c("Sites", "Lat", "Long")] ,env1,env2[,c("V1", "PrecRange")],env3,env4[,c("V1", "PrecRange")]) 
-colnames(my.sites.environment) <- c("Sites","Lat","Long",
+my.sites.environment <- cbind.data.frame(Name=h_df[, c("Site", "Lat", "Long")] ,env1,env2,env3) 
+colnames(my.sites.environment) <- c("Site","Lat","Long",
                                     "SSTmean_cont", "SSTrange_cont",
-                                    "PrecMean_cont", "PrecRange_cont",
-                                    "SSTmean_paleo", "SSTrange_paleo",
-                                    "PrecMean_paleo", "PrecRange_paleo") 
+                                    "SSSmean_cont", "SSSrange_cont",
+                                    "SSTmean_LGM", "SSTrange_LGM",
+                                    "SSSmean_LGM", "SSSrange_LGM",
+                                    "SSTmean_MH", "SSTrange_MH",
+                                    "SSSmean_MH", "SSSrange_MH") 
 
-write.csv(my.sites.environment, file="Data_Enviro_Sites_nucl.div_20210914.csv", row.names=F)
+write.csv(my.sites.environment, file="Data_Enviro_Sites_hap.div_20210925.csv", row.names=F)
 
 
 ######################################
@@ -192,5 +184,17 @@ colnames(bioreg.environment) <- c("Bioregions","SSTmean_cont", "SSTrange_cont",
 
 write.csv(bioreg.environment, file="Data_Enviro_Bioregions_20210914.csv", row.names=F)
 
+################
+## Check correlation between predictors
+env <- read.csv("Data_Enviro_Sites_nucl.div_20210914.csv", header=T)
+
+M <- cor(env[,4:11], use="pairwise.complete.obs")
 
 
+png("Env_predictors_correlogram.png", width = 800, height = 800)
+corrplot::corrplot(M, type="lower", diag=F,
+                   method = "color", rect.col = "black", 
+                   rect.lwd = 5,outline = F,cl.cex = 0.25, 
+                   number.cex = 0.8,addCoef.col = "black",tl.col = "black",
+                   col = colorRampPalette(c("red", "white","midnightblue"))(200))
+dev.off()
