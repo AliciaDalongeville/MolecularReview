@@ -185,12 +185,31 @@ colnames(bioreg.environment) <- c("Bioregions","SSTmean_cont", "SSTrange_cont",
 write.csv(bioreg.environment, file="Data_Enviro_Bioregions_20210914.csv", row.names=F)
 
 ################
-## Check correlation between predictors
-env <- read.csv("Data_Enviro_Sites_nucl.div_20210914.csv", header=T)
+## Compute climate stability (difference between SST/SSS between present and LGM/MH)
+env_n <- read.csv("Data_Enviro_Sites_nucl.div_20211005.csv", header=T)
+env_h <- read.csv("Data_Enviro_Sites_hap.div_20211005.csv", header=T)
 
-M <- cor(env[,4:11], use="pairwise.complete.obs")
+## Calculate stability
+env_n <- env_n %>%
+  mutate(SST_stability_LGM =  abs(SSTmean_cont - SSTmean_LGM), .after = SSTrange_LGM) %>%
+  mutate(SSS_stability_LGM =  abs(SSSmean_cont - SSSmean_LGM), .after = SSSrange_LGM) %>%
+  mutate(SST_stability_MH =  abs(SSTmean_cont - SSTmean_MH), .after = SSTrange_MH) %>%
+  mutate(SSS_stability_MH =  abs(SSSmean_cont - SSSmean_MH), .after = SSSrange_MH)
 
+env_h <- env_h %>%
+  mutate(SST_stability_LGM =  abs(SSTmean_cont - SSTmean_LGM), .after = SSTrange_LGM) %>%
+  mutate(SSS_stability_LGM =  abs(SSSmean_cont - SSSmean_LGM), .after = SSSrange_LGM) %>%
+  mutate(SST_stability_MH =  abs(SSTmean_cont - SSTmean_MH), .after = SSTrange_MH) %>%
+  mutate(SSS_stability_MH =  abs(SSSmean_cont - SSSmean_MH), .after = SSSrange_MH)
 
+## Write results
+write.csv(env_h, file="Data_Enviro_Sites_hap.div_20211005.csv", row.names=F)
+write.csv(env_n, file="Data_Enviro_Sites_nucl.div_20211005.csv", row.names=F)
+
+## Calculate pairwise correlations between predictors 
+M <- cor(env_h[,4:19], use="pairwise.complete.obs")
+
+# Plot the correlogram
 png("Env_predictors_correlogram.png", width = 800, height = 800)
 corrplot::corrplot(M, type="lower", diag=F,
                    method = "color", rect.col = "black", 

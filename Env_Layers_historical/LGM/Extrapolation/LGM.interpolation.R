@@ -90,3 +90,7 @@ index <- c(10,11,8,9)
     res_n[,e] <- raster::extract(paleo.LGM.extra[[i]], n_df[,c("Long", "Lat")], 
                                      method='bilinear', df=T)[,2]
   }
+
+## Write results
+write.csv(res_h, file="Data_Enviro_Sites_hap.div_20211005.csv", row.names=F)
+write.csv(res_n, file="Data_Enviro_Sites_nucl.div_20211005.csv", row.names=F)
