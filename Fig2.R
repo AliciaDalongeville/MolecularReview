@@ -191,7 +191,7 @@ n_df <- read.csv("Genetic_data/nuc.div.filteredNEW.csv", header = T)
 #Import present day coastline shapefile
 my_spdf <- readOGR("Env_Layers_historical/LGM/Extrapolation/AFbuff2.shp")
 ### may want to clip this down as it extends over much of central Africa
-sa.ext <- extent(14, 35, -37, -21) 
+sa.ext <- extent(14, 35, -37, -27) 
 my_spdf <- raster::crop(my_spdf, sa.ext)
 
 #Transform shapefile into empy raster
@@ -226,6 +226,9 @@ idw_n <- interpolate(rr,gs_n)
 idwmsk_h <- mask(idw_h, rr)
 idwmsk_n <- mask(idw_n, rr)
 
+# Add the bioregions
+bioregions = rgdal::readOGR("/Users/alicia/Documents/Stellenbosch_post-doc/GIS Layers/SA_bioregions_enviro.shp")
+
 ###################
 # Generate  the map 
 wH <- map_data("worldHires",  xlim=c(14,35), ylim=c(-37,-21)) # subset polygons surrounding med sea
@@ -252,7 +255,7 @@ names(ls_val_n) <- round(ls_val_n,4)
 # Plot haplotype diversity 
 map_h <- ggplot(ndvi_h) +  
   geom_polygon(data=wH, aes(x=long, y = lat, group = group), 
-               fill="grey80", color=NA, size=0.25, alpha=0.7) +
+               fill="grey80", color="grey50", size=0.25, alpha=0.5) +
   geom_raster(aes(x, y, fill = h)) + 
   scale_fill_viridis(na.value="transparent", breaks=ls_val_h) +
   coord_fixed(xlim=c(14,35), ylim=c(-37,-21), ratio=1.2)+
@@ -270,7 +273,7 @@ map_h <- ggplot(ndvi_h) +
 # Plot nucleotide diversity
 map_n <- ggplot(ndvi_n) +  
   geom_polygon(data=wH, aes(x=long, y = lat, group = group), 
-               fill="grey80", color=NA, size=0.25, alpha=0.7) +
+               fill="grey80", color="grey50", size=0.25, alpha=0.5) +
   geom_raster(aes(x, y, fill = pi)) + 
   scale_fill_viridis(na.value="transparent", breaks=ls_val_n) +
   coord_fixed(xlim=c(14,35), ylim=c(-37,-21), ratio=1.2)+
