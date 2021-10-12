@@ -63,7 +63,7 @@ contemp.mar<- load_layers( layercodes = c("BO2_tempmean_ss", "BO2_temprange_ss",
 
 
 # Crop raster to fit South Africa 
-sa.ext <- extent(14, 35, -37, 21) 
+sa.ext <- extent(14, 35, -37, -21) 
 paleo.LGM.crop <- crop(paleo.LGM, sa.ext) 
 
 # Generate a nice color ramp and plot the map 
