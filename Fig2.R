@@ -65,8 +65,8 @@ data_n <- cbind(Y_n,X_n)
 colnames(data_n)[1] <- "pi"
 
 ## Calculate the mean and standard errors per group
-plot_df <- as.data.frame(matrix(NA,14,4))
-nb_mod<- c(5,2)
+plot_df <- as.data.frame(matrix(NA,12,4))
+nb_mod<- c(4,2)
 plot_df[,1]<- c(rep(colnames(X_h), nb_mod), rep(colnames(X_n), nb_mod))
 e=1
 
@@ -77,23 +77,23 @@ st.err <- function(x) {
 
 # calculate mean and se for h
 # Bioregions
-plot_df[1:5,2] <- as.character(aggregate(Y_h ~ X_h[,1] , data_h,  mean)[,1])
-plot_df[1:5,3]<-aggregate(Y_h ~ X_h[,1] , data_h,  mean)[,2]
-plot_df[1:5,4]<-aggregate(Y_h ~ X_h[,1] , data_h,  st.err)[,2]
+plot_df[1:4,2] <- as.character(aggregate(Y_h ~ X_h[,1] , data_h,  mean)[,1])
+plot_df[1:4,3]<-aggregate(Y_h ~ X_h[,1] , data_h,  mean)[,2]
+plot_df[1:4,4]<-aggregate(Y_h ~ X_h[,1] , data_h,  st.err)[,2]
 # Habitat
-plot_df[6:7,2] <- as.character(aggregate(Y_h ~ X_h[,2] , data_h,  mean)[,1])
-plot_df[6:7,3]<-aggregate(Y_h ~ X_h[,2] , data_h,  mean)[,2]
-plot_df[6:7,4]<-aggregate(Y_h ~ X_h[,2] , data_h,  st.err)[,2]
+plot_df[5:6,2] <- as.character(aggregate(Y_h ~ X_h[,2] , data_h,  mean)[,1])
+plot_df[5:6,3]<-aggregate(Y_h ~ X_h[,2] , data_h,  mean)[,2]
+plot_df[5:6,4]<-aggregate(Y_h ~ X_h[,2] , data_h,  st.err)[,2]
 
 # calculate mean and se for pi
 # Bioregions
-plot_df[8:12,2] <- as.character(aggregate(Y_n ~ X_n[,1] , data_n,  mean)[,1])
-plot_df[8:12,3]<-aggregate(Y_n ~ X_n[,1] , data_n,  mean)[,2]
-plot_df[8:12,4]<-aggregate(Y_n ~ X_n[,1] , data_n,  st.err)[,2]
+plot_df[7:10,2] <- as.character(aggregate(Y_n ~ X_n[,1] , data_n,  mean)[,1])
+plot_df[7:10,3]<-aggregate(Y_n ~ X_n[,1] , data_n,  mean)[,2]
+plot_df[7:10,4]<-aggregate(Y_n ~ X_n[,1] , data_n,  st.err)[,2]
 # Habitat
-plot_df[13:14,2] <- as.character(aggregate(Y_n ~ X_n[,2] , data_n,  mean)[,1])
-plot_df[13:14,3]<-aggregate(Y_n ~ X_n[,2] , data_n,  mean)[,2]
-plot_df[13:14,4]<-aggregate(Y_n ~ X_n[,2] , data_n,  st.err)[,2]
+plot_df[11:12,2] <- as.character(aggregate(Y_n ~ X_n[,2] , data_n,  mean)[,1])
+plot_df[11:12,3]<-aggregate(Y_n ~ X_n[,2] , data_n,  mean)[,2]
+plot_df[11:12,4]<-aggregate(Y_n ~ X_n[,2] , data_n,  st.err)[,2]
 
 colnames(plot_df)<- c("Variable", "Mod", "mean", "st.err")
 write.csv(plot_df, file="Mean_sd_h_pi_per_variable.csv")
@@ -104,22 +104,22 @@ write.csv(plot_df, file="Mean_sd_h_pi_per_variable.csv")
 plot_df_ALL <- read.csv("Mean_sd_h_pi_per_variable.csv", header=T)
 
 ## create pch vector: different symbols when dunn signif
-pch<-c(21,21,21,24,24,21,21)
+pch<-c(21,21,21,24,21,21)
 
-fill<-c("white", "black", "black", "black", "white", "white", "white")
+fill<-c("white", "black", "black", "black",  "white", "white")
 
-labels <- c("Cool Temperate" , "South West" , "Warm Temperate", "Sub-Tropical", "Tropical",
+labels <- c("Cool Temperate" , "South West" , "Warm Temperate", "Sub-Tropical", 
             "Hard substrate","Soft substrate")
 
 ## Draw plot
-SE_h=plot_df_ALL$st.err[1:7]
-SE_pi=plot_df_ALL$st.err[8:14]
+SE_h=plot_df_ALL$st.err[1:6]
+SE_pi=plot_df_ALL$st.err[7:12]
 
-plot_h <- plot_df_ALL[1:7,]
-plot_pi <- plot_df_ALL[8:14,]
+plot_h <- plot_df_ALL[1:6,]
+plot_pi <- plot_df_ALL[7:12,]
 
 
-jpeg(file="Fig2_a.tiff", width = 28, height = 18, units = "cm", res=300)
+tiff(file="Fig2_a.tiff", width = 28, height = 18, units = "cm", res=300)
 layout(matrix(1:2,1,2,F)) ; layout.show(2)
 
 # Plot h
@@ -139,7 +139,7 @@ mtext(side = 1, line = 2, 'h', cex=1.5)
 dev.off()
 
 # Plot pi
-jpeg(file="Fig2_b.tiff", width = 14, height = 18, units = "cm", res=300)
+tiff(file="Fig2_b.tiff", width = 14, height = 18, units = "cm", res=300)
 par(mar=c(3, 2, 1, 7))  # c(bottom, left, top, right)
 
 dotchart2(plot_pi$mean, labels = "", groups = plot_pi$Variable,
@@ -226,12 +226,10 @@ idw_n <- interpolate(rr,gs_n)
 idwmsk_h <- mask(idw_h, rr)
 idwmsk_n <- mask(idw_n, rr)
 
-# Add the bioregions
-bioregions = rgdal::readOGR("/Users/alicia/Documents/Stellenbosch_post-doc/GIS Layers/SA_bioregions_enviro.shp")
 
 ###################
 # Generate  the map 
-wH <- map_data("worldHires",  xlim=c(14,35), ylim=c(-37,-21)) # subset polygons surrounding med sea
+wH <- map_data("worldHires",  xlim=c(14,35), ylim=c(-37,-21)) # subset polygons surrounding SA
 
 # raster as dataframes 
 coords_h <- xyFromCell(idwmsk_h, seq_len(ncell(idwmsk_h)))
@@ -245,7 +243,7 @@ names(ndvi_n) <- c('pi', 'variable')
 ndvi_n <- cbind(coords_n, ndvi_n)
 
 
-# Chang he breaks for the legend 
+# Change the breaks for the legend 
 myfuns <- list(Minimum = min, Maximum = max)
 ls_val_h <- unlist(lapply(myfuns, function(f) f(ndvi_h$h, na.rm=T)))
 ls_val_n <- unlist(lapply(myfuns, function(f) f(ndvi_n$pi, na.rm=T)))
