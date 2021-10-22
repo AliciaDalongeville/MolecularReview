@@ -2,6 +2,7 @@ library(gtools)
 library(FSA)
 library(dunn.test)
 library(Hmisc)
+library(dplyr)
 
 # load population coordinates
 h_df <- read.csv("Genetic_data/hap.div.filteredNEW.csv",  header = T)
@@ -143,7 +144,7 @@ tiff(file="Fig2_b.tiff", width = 14, height = 18, units = "cm", res=300)
 par(mar=c(3, 2, 1, 7))  # c(bottom, left, top, right)
 
 dotchart2(plot_pi$mean, labels = "", groups = plot_pi$Variable,
-          xlab='', ylab='', cex.labels=1.2, xlim=c(0,0.3), cex=1.2,
+          xlab='', ylab='', cex.labels=1.2, xlim=c(0,0.02), cex=1.2,
           cex.group.labels=1.2, groupfont=0, leavepar=TRUE, lty=3, 
           lcolor="gray60", pch=pch, col="black", bg=fill, 
           dotsize=1.3, sort.=F)
@@ -247,8 +248,8 @@ ndvi_n <- cbind(coords_n, ndvi_n)
 myfuns <- list(Minimum = min, Maximum = max)
 ls_val_h <- unlist(lapply(myfuns, function(f) f(ndvi_h$h, na.rm=T)))
 ls_val_n <- unlist(lapply(myfuns, function(f) f(ndvi_n$pi, na.rm=T)))
-names(ls_val_h) <- round(ls_val_h,4)
-names(ls_val_n) <- round(ls_val_n,4)
+names(ls_val_h) <- round(ls_val_h,5)
+names(ls_val_n) <- round(ls_val_n,5)
 
 # Plot haplotype diversity 
 map_h <- ggplot(ndvi_h) +  
@@ -290,3 +291,20 @@ tiff(file="Heatmaps_diversity.tiff", width = 28, height = 18, units = "cm", res=
 grid.arrange(map_h,map_n,nrow=1,ncol=2) #use package gridExtra   
 dev.off()
 
+##############################################################################
+## Data for Table 2
+h_df %>%
+  group_by(Bioregion,Substrate) %>%
+  summarise(mean=mean(h), sd=sd(h),n_sites=n(),n_species=n_distinct(spp))
+
+h_df %>%
+  group_by(Bioregion) %>%
+  summarise(mean=mean(h), sd=sd(h),n_sites=n(),n_species=n_distinct(spp))
+
+n_df %>%
+  group_by(Bioregion,Substrate) %>%
+  summarise(mean=mean(pi), sd=sd(pi))
+
+n_df %>%
+  group_by(Bioregion) %>%
+  summarise(mean=mean(pi), sd=sd(pi))
