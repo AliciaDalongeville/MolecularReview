@@ -216,13 +216,24 @@ dta_h <- spTransform(dsp_h, CRS('+proj=longlat +datum=WGS84 +no_defs'))
 dta_n <- spTransform(dsp_n, CRS('+proj=longlat +datum=WGS84 +no_defs'))
 
 
-#Fit the model for interpolation 
-gs_h <- gstat(formula=h~1, locations=dta_h)
-gs_n <- gstat(formula=pi~1, locations=dta_n)
+#± Fit the model for interpolation 
+#gs_h <- gstat(formula=h~1, locations=dta_h, nmax=10, nmin=3, set = list(idp = 0.5))
+
+# Thin Plate Spline Regression
+fit_TPS_h <- fields::Tps( # using {fields}
+  x = as.matrix(d_h[, c("Long", "Lat")]), # accepts points but expects them as matrix
+  Y = d_h$h,  # the dependent variable
+  miles = FALSE     # EPSG 25833 is based in meters
+)
+fit_TPS_n <- fields::Tps( # using {fields}
+  x = as.matrix(d_n[, c("Long", "Lat")]), # accepts points but expects them as matrix
+  Y = d_n$pi,  # the dependent variable
+  miles = FALSE     # EPSG 25833 is based in meters
+)
 
 # Perform interpolation
-idw_h <- interpolate(rr,gs_h)
-idw_n <- interpolate(rr,gs_n)
+idw_h <- interpolate(rr,fit_TPS_h)
+idw_n <- interpolate(rr,fit_TPS_n)
 ## [inverse distance weighted interpolation]
 idwmsk_h <- mask(idw_h, rr)
 idwmsk_n <- mask(idw_n, rr)
@@ -248,8 +259,9 @@ ndvi_n <- cbind(coords_n, ndvi_n)
 myfuns <- list(Minimum = min, Maximum = max)
 ls_val_h <- unlist(lapply(myfuns, function(f) f(ndvi_h$h, na.rm=T)))
 ls_val_n <- unlist(lapply(myfuns, function(f) f(ndvi_n$pi, na.rm=T)))
-names(ls_val_h) <- round(ls_val_h,5)
-names(ls_val_n) <- round(ls_val_n,5)
+names(ls_val_h) <- round(ls_val_h,3)
+#names(ls_val_n) <- round(ls_val_n,3)
+names(ls_val_n) <- c("0.000","0.011")
 
 # Plot haplotype diversity 
 map_h <- ggplot(ndvi_h) +  
@@ -301,10 +313,18 @@ h_df %>%
   group_by(Bioregion) %>%
   summarise(mean=mean(h), sd=sd(h),n_sites=n(),n_species=n_distinct(spp))
 
+h_df %>%
+  group_by(Substrate) %>%
+  summarise(mean=mean(h), sd=sd(h),n_sites=n(),n_species=n_distinct(spp))
+
 n_df %>%
   group_by(Bioregion,Substrate) %>%
   summarise(mean=mean(pi), sd=sd(pi))
 
 n_df %>%
   group_by(Bioregion) %>%
+  summarise(mean=mean(pi), sd=sd(pi))
+
+n_df %>%
+  group_by(Substrate) %>%
   summarise(mean=mean(pi), sd=sd(pi))
