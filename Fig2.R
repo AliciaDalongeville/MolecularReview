@@ -340,3 +340,24 @@ n_df %>%
 n_df %>%
   group_by(Substrate) %>%
   summarise(mean=mean(pi), sd=sd(pi))
+
+######## Data for Table S1
+##############################################################################
+## Data for Table 2
+h_spp <- h_df %>%
+  group_by(spp) %>%
+  summarise(mean=mean(h), sd=sd(h),n_sites=n()) %>%
+  as.data.frame(.)
+
+n_spp <- n_df %>%
+  group_by(spp) %>%
+  summarise(mean=mean(pi), sd=sd(pi),n_sites=n()) %>%
+  as.data.frame(.)
+
+tabS1 <- h_spp %>%
+  full_join(n_spp[,c("spp", "mean")], by= "spp") 
+write.csv(tabS1, file="h_and_pi_per_species.csv")
+
+boxplot(h ~ spp, data = h_df, main = "Haplotype diversity")
+boxplot(pi ~ spp, data = n_df, main = "Nucleotide diversity",
+        ylim=c(0,0.02))
