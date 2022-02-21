@@ -13,7 +13,7 @@ n_df <- read.csv("Genetic_data/nuc.div.filteredNEW.csv", header = T)
 X_h <- h_df[,c("Bioregion","Substrate")]
 X_n <- n_df[,c("Bioregion","Substrate")]
 
-Y_h<-logit(h_df$h) # logit to normalise
+Y_h<-logit(h_df$h) # logit to normalize
 Y_n<-logit(n_df$pi)
 
 data_h <- cbind(Y_h,X_h)
@@ -21,25 +21,35 @@ colnames(data_h)[1] <- "h"
 data_n <- cbind(Y_n,X_n)
 colnames(data_n)[1] <- "pi"
 
-## Kruskal-Wallis Test to compare haplotype diversity per traits
-res_kw <- matrix(NA,4,2, dimnames=list(c("h_Bioregion", "h_Habitat", "pi_Bioregion", "pi_Habitat"), 
-                                       c("chi-sq", "pval")))
+## remove the infinite values
+finiteElements_h = which(is.finite(data_h$h))
+finiteData_h = data_h[finiteElements_h,]
+finiteElements_n = which(is.finite(data_n$pi))
+finiteData_n = data_n[finiteElements_n,]
+
+## ANOVA to compare haplotype diversity per traits
+res_an <- matrix(NA,4,2, dimnames=list(c("h_Bioregion", "h_Habitat", "pi_Bioregion", "pi_Habitat"), 
+                                       c("F", "pval")))
 
 # h for Bioregions
-kw_h_bio <- kruskal.test(Y_h ~ X_h[,"Bioregion"]) 
-res_kw[1,] <- c(kw_h_bio$statistic,kw_h_bio$p.value)
+m_h_bio <- lm(h ~ Bioregion, data=finiteData_h)
+an_h_bio <- anova(m_h_bio) 
+res_an[1,] <- c(an_h_bio$`F value`[1], an_h_bio$`Pr(>F)`[1])
 # h for Habitat
-kw_h_hab <- kruskal.test(Y_h ~ X_h[,"Substrate"]) 
-res_kw[2,] <- c(kw_h_hab$statistic,kw_h_hab$p.value)
+m_h_hab <- lm(h ~ Substrate, data=finiteData_h)
+an_h_hab <- anova(m_h_hab) 
+res_an[2,] <- c(an_h_hab$`F value`[1], an_h_hab$`Pr(>F)`[1])
 # pi for Bioregions
-kw_n_bio <- kruskal.test(Y_n ~ X_n[,"Bioregion"]) 
-res_kw[3,] <- c(kw_n_bio$statistic,kw_n_bio$p.value)
+m_n_bio <- lm(pi ~ Bioregion, data=finiteData_n)
+an_n_bio <- anova(m_n_bio) 
+res_an[3,] <- c(an_n_bio$`F value`[1], an_n_bio$`Pr(>F)`[1])
 # pi for Habitat
-kw_n_hab <- kruskal.test(Y_n ~ X_n[,"Substrate"]) 
-res_kw[4,] <- c(kw_n_hab$statistic,kw_n_hab$p.value)
+m_n_hab <- lm(pi ~ Substrate, data=finiteData_n)
+an_n_hab <- anova(m_n_hab) 
+res_an[4,] <- c(an_n_hab$`F value`[1], an_n_hab$`Pr(>F)`[1])
 
-signif <- res_kw[which(res_kw[,2] < 0.05),] # Only bioregion is significant
-write.csv(res_kw, file="Resultats_KWtest.csv")
+signif <- res_an[which(res_an[,2] < 0.05),] # Only bioregion is significant and substrate for pi
+write.csv(res_an, file="Resultats_ANOVA.csv")
 
 # Dunn posthoc test to test significance of pairwise differences between bioregions
 dunn_h = dunn.test(Y_h,  X_h[,"Bioregion"],  method="bonferroni", 
@@ -105,9 +115,11 @@ write.csv(plot_df, file="Mean_sd_h_pi_per_variable.csv")
 plot_df_ALL <- read.csv("Mean_sd_h_pi_per_variable.csv", header=T)
 
 ## create pch vector: different symbols when dunn signif
-pch<-c(21,21,21,24,21,21)
+pch_h<-c(21,21,21,24,21,21)
+pch_n<-c(21,21,21,24,21,24)
 
-fill<-c("white", "black", "black", "black",  "white", "white")
+fill_h<-c("white", "black", "black", "black",  "white", "white")
+fill_n<-c("white", "black", "black", "black",  "black", "black")
 
 labels <- c("Cool Temperate" , "South West" , "Warm Temperate", "Sub-Tropical", 
             "Hard substrate","Soft substrate")
@@ -128,7 +140,7 @@ par(mar=c(3, 9, 1, 0))  # c(bottom, left, top, right)
 dotchart2(plot_h$mean, labels = labels, groups = plot_h$Variable,
           xlab="", cex.labels=1.2, xlim=c(0.55,1), cex=1.2,
           cex.group.labels=1.2, groupfont=2, leavepar=TRUE, lty=3, 
-          lcolor="gray60", pch=pch, col="black", bg=fill, 
+          lcolor="gray60", pch=pch_h, col="black", bg=fill_h, 
           dotsize=1.3, sort.=F)
 
 dotchart2(plot_h$mean+SE_h, labels = labels, groups = plot_h$Variable, 
@@ -146,7 +158,7 @@ par(mar=c(3, 2, 1, 7))  # c(bottom, left, top, right)
 dotchart2(plot_pi$mean, labels = "", groups = plot_pi$Variable,
           xlab='', ylab='', cex.labels=1.2, xlim=c(0,0.02), cex=1.2,
           cex.group.labels=1.2, groupfont=0, leavepar=TRUE, lty=3, 
-          lcolor="gray60", pch=pch, col="black", bg=fill, 
+          lcolor="gray60", pch=pch_n, col="black", bg=fill_n, 
           dotsize=1.3, sort.=F)
 
 dotchart2(plot_pi$mean+SE_pi, labels = labels, groups = plot_pi$Variable, 
