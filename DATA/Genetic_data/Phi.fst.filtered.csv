@@ -1,0 +1,20 @@
+﻿Species,spp,Bioregion,Nb_site,Phi_fst,Pval
+Acanthochiton garnoti,Aga,SouthWest,4,0.08169,0
+Acanthochiton garnoti,Aga,WarmTemperate,5,0.04394,0.0049
+Oxystele antoni,Ova,CoolTemperate,3,0.00309,0.4849
+Oxystele antoni,Ova,SouthWest,4,0.00827,0.2239
+Parechinus angulosus,Pan,CoolTemperate,6,0.28265,0
+Parechinus angulosus,Pan,SouthWest,4,0.00597,0.2053
+Parechinus angulosus,Pan,WarmTemperate,5,0.08235,0
+Tetraclita serrata,Tse,CoolTemperate,4,0.07692,0
+Tetraclita serrata,Tse,SouthWest,4,0.16186,0
+Tetraclita serrata,Tse,WarmTemperate,7,0.00219,0.3333
+Afrolittorina knysnaensis,Akn,CoolTemperate,5,0,0.8993
+Afrolittorina knysnaensis,Akn,WarmTemperate,8,0,0.5328
+Afrolittorina knysnaensis,Akn,SubTropical,4,0.00637,0.3539
+Afrolittorina africana,Aaf,WarmTemperate,4,0.12402,0.0762
+Afrolittorina africana,Aaf,SubTropical,10,0.03524,0.0411
+Nassarius kraussianus,Nkr,WarmTemperate,3,0.01645,0.333
+Nassarius kraussianus,Nkr,SubTropical,4,0.13978,0.0039
+Excirolana latipes,Ela,CoolTemperate,4,0.45979,0
+Excirolana latipes,Ela,SouthWest,4,0.31052,0
